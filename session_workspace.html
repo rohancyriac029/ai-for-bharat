@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>COUNCIL Session Workspace</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#E8734A",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#0A0A0A",
+                        "agent-orange": "#E8734A",
+                        "agent-indigo": "#6366f1",
+                        "agent-red": "#ef4444",
+                        "tooltip-bg": "#1A1A1A",
+                        "tooltip-border": "#242424",
+                        "tooltip-text": "#8A8A8A"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+            body { font-family: 'Inter', sans-serif; }
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #2a2c41; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3c3f5d; }
+        .reasoning-highlight {
+            @apply relative inline-flex items-center gap-1 px-1 cursor-help transition-all duration-200;
+            background-color: rgba(232, 115, 74, 0.15);
+            border-bottom: 1px solid #E8734A;
+            box-shadow: 0 0 12px rgba(232, 115, 74, 0.1);
+        }
+        .reasoning-highlight:hover .reasoning-tooltip {
+            @apply opacity-100 visible translate-y-0;
+        }
+        .reasoning-tooltip {
+            @apply absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 p-3 rounded-lg z-50 transition-all duration-200 opacity-0 invisible translate-y-1;
+            background-color: #1A1A1A;
+            border: 1px solid #E8734A33;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+        .reasoning-tooltip::after {
+            content: '';
+            @apply absolute top-full left-1/2 -translate-x-1/2 border-8;
+            border-color: #1A1A1A transparent transparent transparent;
+        }
+
+        @keyframes glitch1 {
+            0% { transform: translate(0) }
+            20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) }
+            60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) }
+            100% { transform: translate(0) }
+        }
+        @keyframes glitch-skew {
+            0% { transform: skew(0deg) }
+            10% { transform: skew(10deg) }
+            20% { transform: skew(-10deg) }
+            30% { transform: skew(0deg) }
+            100% { transform: skew(0deg) }
+        }
+        .anim-glitch {
+            animation: glitch1 0.2s cubic-bezier(.25, .46, .45, .94) both infinite, glitch-skew 1s cubic-bezier(.25, .46, .45, .94) both infinite;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased overflow-hidden h-screen flex flex-col relative">
+
+    <!-- Page Intro Overlay -->
+    <div id="page-enter-overlay"
+        class="fixed inset-0 z-[100] bg-background-dark flex items-center justify-center transition-opacity duration-700 pointer-events-none">
+        <div class="flex flex-col items-center gap-4 transition-all duration-300" id="enter-content">
+            <span class="size-3 bg-primary rounded-full animate-ping"></span>
+            <span class="font-mono text-xs text-primary uppercase tracking-widest">Connecting to Multi-Agent
+                Platform...</span>
+        </div>
+    </div>
+
+    <script>
+        // Handle entrance animation
+        document.addEventListener('DOMContentLoaded', () => {
+            const overlay = document.getElementById('page-enter-overlay');
+            const content = document.getElementById('enter-content');
+
+            setTimeout(() => {
+                content.classList.add('opacity-0', 'scale-95');
+                overlay.classList.add('opacity-0');
+            }, 800);
+        });
+
+        // Handle exit animation
+        function navigateToHome() {
+            const overlay = document.getElementById('page-enter-overlay');
+            const content = document.getElementById('enter-content');
+
+            // Quick reset and fade in
+            overlay.classList.remove('transition-opacity', 'duration-700');
+            overlay.classList.add('transition-opacity', 'duration-200');
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+
+            // Glitch text setup
+            content.classList.add('anim-glitch', 'text-red-500');
+            content.innerHTML = `
+                <span class="material-symbols-outlined text-red-500 animate-pulse text-2xl">warning</span>
+                <span class="font-mono text-xs text-red-500 uppercase tracking-widest flex flex-col items-center gap-1">
+                    <span>ERR: SESSION_TERMINATED</span>
+                    <span class="text-[10px] text-red-500/50">Severing connection to host...</span>
+                </span>
+            `;
+            content.classList.remove('opacity-0', 'scale-95');
+
+            setTimeout(() => {
+                window.location.href = 'landing_page.html';
+            }, 1200); // Give the glitch a moment to display before redirecting
+        }
+    </script>
+    <header
+        class="flex h-14 items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6 bg-background-light dark:bg-background-dark shrink-0">
+        <div class="flex items-center gap-4">
+            <div class="text-primary">
+                <svg class="size-6 cursor-pointer hover:scale-110 transition-transform" onclick="navigateToHome()"
+                    fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M13.8261 30.5736C16.7203 29.8826 20.2244 29.4783 24 29.4783C27.7756 29.4783 31.2797 29.8826 34.1739 30.5736C36.9144 31.2278 39.9967 32.7669 41.3563 33.8352L24.8486 7.36089C24.4571 6.73303 23.5429 6.73303 23.1514 7.36089L6.64374 33.8352C8.00331 32.7669 11.0856 31.2278 13.8261 30.5736Z"
+                        fill="currentColor"></path>
+                    <path clip-rule="evenodd"
+                        d="M39.998 35.764C39.9944 35.7463 39.9875 35.7155 39.9748 35.6706C39.9436 35.5601 39.8949 35.4259 39.8346 35.2825C39.8168 35.2403 39.7989 35.1993 39.7813 35.1602C38.5103 34.2887 35.9788 33.0607 33.7095 32.5189C30.9875 31.8691 27.6413 31.4783 24 31.4783C20.3587 31.4783 17.0125 31.8691 14.2905 32.5189C12.0012 33.0654 9.44505 34.3104 8.18538 35.1832C8.17384 35.2075 8.16216 35.233 8.15052 35.2592C8.09919 35.3751 8.05721 35.4886 8.02977 35.589C8.00356 35.6848 8.00039 35.7333 8.00004 35.7388C8.00004 35.739 8 35.7393 8.00004 35.7388C8.00004 35.7641 8.0104 36.0767 8.68485 36.6314C9.34546 37.1746 10.4222 37.7531 11.9291 38.2772C14.9242 39.319 19.1919 40 24 40C28.8081 40 33.0758 39.319 36.0709 38.2772C37.5778 37.7531 38.6545 37.1746 39.3151 36.6314C39.9006 36.1499 39.9857 35.8511 39.998 35.764ZM4.95178 32.7688L21.4543 6.30267C22.6288 4.4191 25.3712 4.41909 26.5457 6.30267L43.0534 32.777C43.0709 32.8052 43.0878 32.8338 43.104 32.8629L41.3563 33.8352C43.104 32.8629 43.1038 32.8626 43.104 32.8629L43.1051 32.865L43.1065 32.8675L43.1101 32.8739L43.1199 32.8918C43.1276 32.906 43.1377 32.9246 43.1497 32.9473C43.1738 32.9925 43.2062 33.0545 43.244 33.1299C43.319 33.2792 43.4196 33.489 43.5217 33.7317C43.6901 34.1321 44 34.9311 44 35.7391C44 37.4427 43.003 38.7775 41.8558 39.7209C40.6947 40.6757 39.1354 41.4464 37.385 42.0552C33.8654 43.2794 29.133 44 24 44C18.867 44 14.1346 43.2794 10.615 42.0552C8.86463 41.4464 7.30529 40.6757 6.14419 39.7209C4.99695 38.7775 3.99999 37.4427 3.99999 35.7391C3.99999 34.8725 4.29264 34.0922 4.49321 33.6393C4.60375 33.3898 4.71348 33.1804 4.79687 33.0311C4.83898 32.9556 4.87547 32.8935 4.9035 32.8471C4.91754 32.8238 4.92954 32.8043 4.93916 32.7889L4.94662 32.777L4.95178 32.7688ZM35.9868 29.004L24 9.77997L12.0131 29.004C12.4661 28.8609 12.9179 28.7342 13.3617 28.6282C16.4281 27.8961 20.0901 27.4783 24 27.4783C27.9099 27.4783 31.5719 27.8961 34.6383 28.6282C35.082 28.7342 35.5339 28.8609 35.9868 29.004Z"
+                        fill="currentColor" fill-rule="evenodd"></path>
+                </svg>
+            </div>
+            <h2 onclick="navigateToHome()"
+                class="text-slate-900 dark:text-white text-lg font-bold tracking-tight cursor-pointer hover:text-primary transition-colors">
+                COUNCIL</h2>
+            <div class="h-4 w-px bg-slate-200 dark:bg-slate-800 hidden md:block"></div>
+            <nav class="hidden md:flex items-center gap-6">
+                <a class="text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+                    href="#">DASHBOARD</a>
+                <a class="text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+                    href="#">ARCHIVE</a>
+                <a class="text-xs font-semibold text-slate-500 hover:text-primary transition-colors" href="#">AGENTS</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                <span class="size-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                <span class="text-xs font-bold text-emerald-500 uppercase tracking-wider">Session Active</span>
+            </div>
+            <div class="flex gap-1">
+                <button
+                    class="p-2 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">settings</span>
+                </button>
+                <button
+                    class="p-2 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors relative">
+                    <span class="material-symbols-outlined text-[20px]">notifications</span>
+                    <span class="absolute top-2 right-2 size-1.5 bg-primary rounded-full"></span>
+                </button>
+            </div>
+            <div class="h-8 w-8 rounded-full bg-primary/20 overflow-hidden border border-primary/30">
+                <img class="w-full h-full object-cover" data-alt="User profile avatar"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuALTMgnYv1K8hf7Ify4j8cMRSw_i3Ob6yLwxVA3IlX7E0ZMHd2jFhyDw1qxU0miFwFU3a4byyEXgubFbldBV9u2zasjVVgSbh_AbFdLXiCVC-5DU8-hgDVdbu8iobDfa92DVDY2xdZUWY7DapExXdFX5odVyu-sWcz0pR5DbvH8z-BpCi2Xpr92jSaOlzUOsmWcA_NzsYT4okpqgsfTvKYI6lhpALeBkvLZkN_KmHlJWb27bmrxf3c64lIcABMPuHOjxd-IHi_JOVM" />
+            </div>
+        </div>
+    </header>
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <div class="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
+            <div class="max-w-[1400px] mx-auto flex gap-4 items-start">
+                <div class="flex-1 relative group">
+                    <div
+                        class="absolute left-4 top-3.5 text-slate-400 group-focus-within:text-primary transition-colors">
+                        <span class="material-symbols-outlined">psychology</span>
+                    </div>
+                    <textarea
+                        class="w-full pl-12 pr-4 py-3 bg-white dark:bg-[#1e202f] border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm resize-none h-12 custom-scrollbar"
+                        placeholder="Define the prompt for the council debate... e.g., Analyze the Q4 market expansion into Southeast Asia."></textarea>
+                    <div class="absolute right-3 bottom-2.5 flex items-center gap-1">
+                        <button class="p-1.5 text-slate-400 hover:text-primary rounded transition-colors"><span
+                                class="material-symbols-outlined text-[18px]">mic</span></button>
+                        <button class="p-1.5 text-slate-400 hover:text-primary rounded transition-colors"><span
+                                class="material-symbols-outlined text-[18px]">attach_file</span></button>
+                    </div>
+                </div>
+                <button
+                    class="px-6 py-3 bg-primary hover:bg-[#D6653E] text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
+                    <span>CONVENE COUNCIL</span>
+                    <span class="material-symbols-outlined text-[18px]">groups</span>
+                </button>
+            </div>
+        </div>
+        <div class="flex-1 flex overflow-hidden">
+            <section
+                class="w-[40%] border-r border-slate-200 dark:border-slate-800 flex flex-col bg-background-light dark:bg-[#0D0D0D]">
+                <div
+                    class="px-6 py-3 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/30">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                        <span class="size-2 bg-agent-indigo rounded-full"></span>
+                        Live Debate
+                    </h3>
+                    <span class="text-[10px] font-mono text-slate-500 uppercase">Streaming...</span>
+                </div>
+                <div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                    <div class="flex gap-4 group">
+                        <div class="shrink-0 flex flex-col items-center gap-1">
+                            <div
+                                class="size-10 rounded-lg bg-agent-orange/10 border border-agent-orange/20 flex items-center justify-center text-agent-orange">
+                                <span class="material-symbols-outlined">rocket_launch</span>
+                            </div>
+                            <div class="w-px flex-1 bg-slate-200 dark:bg-slate-800"></div>
+                        </div>
+                        <div class="flex-1 space-y-2">
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="text-xs font-bold text-agent-orange uppercase tracking-tight">Hype-Man</span>
+                                <span class="text-[10px] text-slate-500 font-mono">14:22:01</span>
+                            </div>
+                            <div
+                                class="bg-white dark:bg-[#1e202f] p-4 rounded-xl rounded-tl-none border-l-4 border-agent-orange shadow-sm">
+                                <p class="text-sm leading-relaxed">This direction is revolutionary! We need to push the
+                                    boundaries of the current market narrative immediately. The data signals are
+                                    screaming early-adoption advantages.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 group">
+                        <div class="shrink-0 flex flex-col items-center gap-1">
+                            <div
+                                class="size-10 rounded-lg bg-agent-indigo/10 border border-agent-indigo/20 flex items-center justify-center text-agent-indigo">
+                                <span class="material-symbols-outlined">menu_book</span>
+                            </div>
+                            <div class="w-px flex-1 bg-slate-200 dark:bg-slate-800"></div>
+                        </div>
+                        <div class="flex-1 space-y-2">
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="text-xs font-bold text-agent-indigo uppercase tracking-tight">Professor</span>
+                                <span class="text-[10px] text-slate-500 font-mono">14:22:15</span>
+                            </div>
+                            <div
+                                class="bg-white dark:bg-[#1e202f] p-4 rounded-xl rounded-tl-none border-l-4 border-agent-indigo shadow-sm">
+                                <p class="text-sm leading-relaxed">If we examine the historical precedents, the
+                                    technical debt incurred by such a rapid shift must be carefully indexed. Rapid
+                                    scaling without structural validation usually leads to 15-20% higher churn in the
+                                    third quarter.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 group">
+                        <div class="shrink-0 flex flex-col items-center gap-1">
+                            <div
+                                class="size-10 rounded-lg bg-agent-red/10 border border-agent-red/20 flex items-center justify-center text-agent-red">
+                                <span class="material-symbols-outlined">gpp_maybe</span>
+                            </div>
+                            <div class="w-px flex-1 bg-slate-200 dark:bg-slate-800"></div>
+                        </div>
+                        <div class="flex-1 space-y-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-agent-red uppercase tracking-tight">Skeptic</span>
+                                <span class="text-[10px] text-slate-500 font-mono">14:22:42</span>
+                            </div>
+                            <div
+                                class="bg-white dark:bg-[#1e202f] p-4 rounded-xl rounded-tl-none border-l-4 border-agent-red shadow-sm">
+                                <p class="text-sm leading-relaxed">Wait. Are we ignoring the regulatory bottlenecks?
+                                    Hype-Man's proposal assumes zero friction from local oversight committees. We need a
+                                    contingency for at least a 6-month delay.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section
+                class="w-[30%] border-r border-slate-200 dark:border-slate-800 flex flex-col bg-slate-50 dark:bg-slate-900/20">
+                <div
+                    class="px-6 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-100/50 dark:bg-slate-900/50">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500">Choose Your Path</h3>
+                </div>
+                <div class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+                    <div
+                        class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1e202f] hover:border-primary transition-all cursor-pointer group">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="size-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                <span class="material-symbols-outlined">bolt</span>
+                            </div>
+                            <span
+                                class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">STRAT-A</span>
+                        </div>
+                        <h4 class="text-sm font-bold mb-1 group-hover:text-primary transition-colors">Aggressive
+                            Expansion</h4>
+                        <p class="text-xs text-slate-500 leading-normal">Prioritize market share and speed over
+                            short-term stability. Leverage Hype-Man's growth model.</p>
+                    </div>
+                    <div
+                        class="p-4 rounded-xl border-2 border-primary bg-primary/5 dark:bg-primary/10 transition-all cursor-pointer relative">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="size-10 rounded-lg bg-primary flex items-center justify-center text-white">
+                                <span class="material-symbols-outlined">account_tree</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="text-[10px] font-mono px-2 py-0.5 rounded bg-primary text-white">SELECTED</span>
+                                <span
+                                    class="material-symbols-outlined text-primary text-[18px] font-bold">check_circle</span>
+                            </div>
+                        </div>
+                        <h4 class="text-sm font-bold mb-1 text-primary">Technical Stability</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-normal">Focus on Professor's data
+                            points. Build robust infrastructure before scaling operations.</p>
+                    </div>
+                    <div
+                        class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1e202f] hover:border-primary transition-all cursor-pointer group">
+                        <div class="flex justify-between items-start mb-3">
+                            <div
+                                class="size-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
+                                <span class="material-symbols-outlined">balance</span>
+                            </div>
+                            <span
+                                class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">STRAT-C</span>
+                        </div>
+                        <h4 class="text-sm font-bold mb-1 group-hover:text-primary transition-colors">Balanced
+                            Integration</h4>
+                        <p class="text-xs text-slate-500 leading-normal">A middle-ground approach incorporating
+                            Skeptic's safety margins with steady growth targets.</p>
+                    </div>
+                </div>
+            </section>
+            <section class="w-[30%] flex flex-col bg-white dark:bg-background-dark">
+                <div
+                    class="px-6 py-3 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/30">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500">Final Draft</h3>
+                    <div class="flex gap-2">
+                        <span class="text-[10px] font-mono text-slate-400">984 WORDS</span>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                    <div class="max-w-prose mx-auto space-y-6">
+                        <h1 class="text-xl font-bold leading-tight tracking-tight">Executive Summary: Market Expansion
+                            Strategy v2.0</h1>
+                        <p class="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                            The following strategic direction represents a synthesis of the Council's debate regarding
+                            the Q4 expansion.
+                            The core thesis rests on a
+                            <span class="reasoning-highlight font-medium text-primary">
+                                multi-tiered technical infrastructure
+                                <span class="material-symbols-outlined text-[14px]">info</span>
+                                <span class="reasoning-tooltip">
+                                    <span
+                                        class="font-mono text-[12px] leading-relaxed block text-tooltip-text">Synthesizing
+                                        Professor's stability requirement with Hype-Man's scaling goals. "Multi-tiered"
+                                        justifies gradual investment while permitting rapid deployment of secondary
+                                        nodes.</span>
+                                </span>
+                            </span>
+                            rollout that allows for modular scaling.
+                        </p>
+                        <p class="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                            By addressing the Professor's concerns regarding technical debt, we propose a three-phase
+                            deployment. Phase One will focus exclusively on localized cloud nodes. This ensures that
+                            latency issues—noted as a primary churn driver—are mitigated prior to user acquisition.
+                        </p>
+                        <div class="relative pl-4 border-l-2 border-primary/30 py-1 my-4 italic text-sm text-slate-500">
+                            Note: Hype-Man's aggressive growth targets remain applicable for Phase Two, pending the
+                            successful stabilization of Phase One node clusters.
+                        </div>
+                        <p class="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                            Regulatory compliance, as highlighted by the Skeptic, will be handled by a dedicated
+                            legal-agent sub-routine operating in parallel.
+                            <span class="reasoning-highlight font-medium text-primary">
+                                Automatic reporting pipelines
+                                <span class="material-symbols-outlined text-[14px]">info</span>
+                                <span class="reasoning-tooltip">
+                                    <span class="font-mono text-[12px] leading-relaxed block text-tooltip-text">Directly
+                                        addresses Skeptic's concern about regulatory bottlenecks without sacrificing
+                                        Hype-Man's operational speed requirements. Automation mitigates human error in
+                                        local filings.</span>
+                                </span>
+                            </span>
+                            will be established to satisfy local oversight committees without slowing the operational
+                            cadence.
+                        </p>
+                    </div>
+                </div>
+                <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#111111]">
+                    <div class="flex gap-2">
+                        <button
+                            class="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-200 dark:bg-white/5 hover:bg-slate-300 dark:hover:bg-white/10 text-xs font-bold rounded-lg transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">content_copy</span>
+                            COPY TEXT
+                        </button>
+                        <button
+                            class="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary hover:bg-[#D6653E] text-white text-xs font-bold rounded-lg transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">auto_fix_high</span>
+                            GENERATE DRAFT
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+</body>
+
+</html>
