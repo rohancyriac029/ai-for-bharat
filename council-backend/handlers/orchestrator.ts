@@ -199,18 +199,15 @@ async function runDebate(
   const startMsg: WSMessage = { type: "status_update", sessionId, status: "debating" };
   await Promise.allSettled(connectionIds.map((cid) => publishToConnection(cid, startMsg)));
 
-  // Build enriched prompt with content format context
-  const formatContext = contentFormat
-    ? `\n\n[Content Format: ${contentFormat}. Shape your perspective for this specific media format.]`
-    : "";
-  const enrichedPrompt = prompt + formatContext;
+  // NOTE: contentFormat is intentionally NOT injected into debate prompts.
+  // Agents should debate the topic on its merits; format only shapes the final draft.
 
   // ── ROUND 1: Opening Arguments (parallel) ──────────────────────────────
   const agents: AgentName[] = ["hype-man", "professor", "skeptic"];
   const round1Events: BedrockHandlerEvent[] = agents.map((agent) => ({
     sessionId,
     agent,
-    userPrompt: enrichedPrompt,
+    userPrompt: prompt,
     round: 1,
   }));
 
@@ -233,7 +230,7 @@ async function runDebate(
     .join("\n\n");
 
   const round2Prompt = [
-    enrichedPrompt,
+    prompt,
     "\n\n--- ROUND 1 POSITIONS ---",
     round1Context,
     "\n\n--- ROUND 2: REBUTTAL ---",
@@ -271,7 +268,7 @@ async function runDebate(
     .join("\n\n");
 
   const round3Prompt = [
-    enrichedPrompt,
+    prompt,
     "\n\n--- ROUND 1 POSITIONS ---",
     round1Context,
     "\n\n--- ROUND 2 REBUTTALS ---",
@@ -366,7 +363,7 @@ async function runDebate(
 
   // ── MEDIATOR: Synthesize paths ──────────────────────────────────────────
   const mediatorSystemPrompt = loadPrompt("mediator-paths");
-  const mediatorUserMessage = `Original prompt: ${prompt}${formatContext}\n\nFull debate transcript (2 rounds):\n${fullTranscriptText}`;
+  const mediatorUserMessage = `Original prompt: ${prompt}\n\nFull debate transcript:\n${fullTranscriptText}`;
 
   let paths: StrategicPath[];
   try {

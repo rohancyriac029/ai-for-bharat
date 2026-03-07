@@ -77,11 +77,15 @@ function WorkspaceInner() {
         promptRef.current = prompt;
         contentFormatRef.current = contentFormat;
         setPrompt(prompt);
-        setDebateStatus("initiated");
-        await submitDebate(session_id, prompt, contentFormat);
         setDebateStatus("debating");
+
+        // Fire-and-forget: the orchestrator Lambda runs 60-120s but API Gateway
+        // times out at 29s with a 504. WS handles all real-time status updates.
+        submitDebate(session_id, prompt, contentFormat).catch((err) => {
+          console.warn("[COUNCIL] submitDebate HTTP error (Lambda still running):", err);
+        });
       } catch (err) {
-        console.error("[COUNCIL] Failed to start debate:", err);
+        console.error("[COUNCIL] Failed to start session:", err);
         setDebateStatus("idle");
       }
     },
@@ -99,10 +103,13 @@ function WorkspaceInner() {
         // Backend has now set debate_status = "drafting"; kick off generation.
         if (!promptRef.current) return;
         setDebateStatus("drafting");
-        await submitDebate(state.sessionId, promptRef.current, contentFormatRef.current);
-        // Don't set status here — WS onDraftReady handles it to avoid race condition
+
+        // Fire-and-forget: draft generation may exceed API Gateway 29s timeout.
+        submitDebate(state.sessionId, promptRef.current, contentFormatRef.current).catch((err) => {
+          console.warn("[COUNCIL] submitDebate HTTP error (Lambda still running):", err);
+        });
       } catch (err) {
-        console.error("[COUNCIL] Failed to select path / generate draft:", err);
+        console.error("[COUNCIL] Failed to select path:", err);
         setDebateStatus("paths_ready");
       }
     },
@@ -113,14 +120,12 @@ function WorkspaceInner() {
   // works even if state.prompt has a stale value.
   const handleGenerate = useCallback(async () => {
     if (!state.sessionId || !state.selectedPath || !promptRef.current) return;
-    try {
-      setDebateStatus("drafting");
-      await submitDebate(state.sessionId, promptRef.current, contentFormatRef.current);
-      // Don't set status here — WS onDraftReady handles it to avoid race condition
-    } catch (err) {
-      console.error("[COUNCIL] Failed to generate draft:", err);
-      setDebateStatus("path_selected");
-    }
+    setDebateStatus("drafting");
+
+    // Fire-and-forget: draft generation may exceed API Gateway 29s timeout.
+    submitDebate(state.sessionId, promptRef.current, contentFormatRef.current).catch((err) => {
+      console.warn("[COUNCIL] submitDebate HTTP error (Lambda still running):", err);
+    });
   }, [state.sessionId, state.selectedPath, setDebateStatus]);
 
   // Copy to clipboard
