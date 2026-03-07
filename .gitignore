@@ -1,0 +1,75 @@
+# ─── Dependencies ────────────────────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# ─── Build outputs ───────────────────────────────────────────────────────────
+# Next.js
+council-frontend/.next/
+council-frontend/out/
+council-frontend/build/
+
+# CDK
+council-infra/cdk.out/
+
+# TypeScript
+*.tsbuildinfo
+*.js.map
+
+# esbuild
+*.bundle.js
+
+# ─── Environment & secrets ──────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+api-keys.md
+
+# ─── Testing & coverage ─────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+*.lcov
+
+# ─── OS files ────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# ─── Editor / IDE ────────────────────────────────────────────────────────────
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# ─── Debug logs ──────────────────────────────────────────────────────────────
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+lerna-debug.log*
+
+# ─── Vercel ──────────────────────────────────────────────────────────────────
+.vercel/
+
+# ─── AWS ─────────────────────────────────────────────────────────────────────
+.aws-sam/
+samconfig.toml
+
+# ─── Misc ────────────────────────────────────────────────────────────────────
+*.tgz
+*.log
+.turbo/
+.cache/
