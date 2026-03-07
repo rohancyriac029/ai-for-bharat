@@ -1,12 +1,16 @@
 "use client";
 
-import dynamic from "next/dynamic";
+// ──────────────────────────────────────────────────────────────────────────────
+// ROLLBACK: To restore the canvas box, uncomment the HeroCanvas import and the
+// "Canvas preview window" block below, then remove the full-page canvas from
+// LandingPage.tsx.
+// ──────────────────────────────────────────────────────────────────────────────
 
-// Lazy-load canvas to avoid SSR issues
-const HeroCanvas = dynamic(
-  () => import("@/components/landing/HeroCanvas").then((m) => m.HeroCanvas),
-  { ssr: false }
-);
+// import dynamic from "next/dynamic";
+// const HeroCanvas = dynamic(
+//   () => import("@/components/landing/HeroCanvas").then((m) => m.HeroCanvas),
+//   { ssr: false }
+// );
 
 interface HeroSectionProps {
   onNavigateToSession?: () => void;
@@ -49,16 +53,11 @@ export function HeroSection({ onNavigateToSession }: HeroSectionProps = {}) {
         </button>
       </div>
 
-      {/* Canvas preview window */}
+      {/* ── REMOVED: Canvas preview window (now full-page bg in LandingPage) ──
       <div className="mt-20 w-full aspect-video rounded-xl border border-border-dark bg-card-dark relative overflow-hidden group">
-        {/* Radial gradient bg */}
         <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/40 via-transparent to-transparent" />
-
-        {/* Canvas */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-auto">
           <HeroCanvas />
-
-          {/* Orbit rings overlay */}
           <div className="absolute z-10 pointer-events-none flex flex-col items-center justify-center opacity-80 mix-blend-screen overflow-hidden w-full h-full">
             <div className="text-sm font-mono text-primary mb-2 opacity-0 group-hover:opacity-60 uppercase tracking-widest transition-all duration-700 delay-100">
               Simulating Consensus Protocol...
@@ -69,14 +68,13 @@ export function HeroSection({ onNavigateToSession }: HeroSectionProps = {}) {
             <div className="w-[450px] h-[450px] rounded-full border border-slate-500/10 animate-[spin_20s_linear_infinite_reverse] absolute opacity-0 group-hover:opacity-100 transition-all duration-1000" />
           </div>
         </div>
-
-        {/* Traffic light dots */}
         <div className="absolute bottom-6 left-6 flex gap-2">
           <div className="size-3 rounded-full bg-red-500/50 border border-red-500" />
           <div className="size-3 rounded-full bg-primary/50 border border-primary" />
           <div className="size-3 rounded-full bg-green-500/50 border border-green-500" />
         </div>
       </div>
+      ── END REMOVED */}
     </section>
   );
 }
