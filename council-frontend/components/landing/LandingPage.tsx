@@ -33,7 +33,7 @@ export function LandingPage() {
 
         <Header onNavigateToSession={navigateToSession} />
 
-        <main className="relative z-10 flex-1 max-w-7xl mx-auto px-6 lg:px-20 w-full">
+        <main className="relative z-10 flex-1 max-w-7xl mx-auto px-6 lg:px-20 w-full pointer-events-none">
           <HeroSection onNavigateToSession={navigateToSession} />
           <HowItWorksSection />
           <AgentRosterSection />

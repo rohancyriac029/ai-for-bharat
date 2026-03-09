@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type KeyboardEvent } from "react";
+import { useState, useRef, useCallback, useEffect, type KeyboardEvent } from "react";
 import { CONTENT_FORMATS } from "@/lib/constants";
 
 interface PromptBarProps {
@@ -9,15 +9,43 @@ interface PromptBarProps {
   disabled?: boolean;
 }
 
+const MIN_HEIGHT = 48;  // single-line height
+const MAX_HEIGHT = 160; // ~5 lines before scroll kicks in
+
 export function PromptBar({ onSubmit, isLoading = false, disabled = false }: PromptBarProps) {
   const [value, setValue] = useState("");
   const [selectedFormat, setSelectedFormat] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const autoResize = useCallback(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    const scrollH = el.scrollHeight;
+    const clamped = Math.min(Math.max(scrollH, MIN_HEIGHT), MAX_HEIGHT);
+    el.style.height = `${clamped}px`;
+    el.style.overflowY = scrollH > MAX_HEIGHT ? "auto" : "hidden";
+    setIsExpanded(clamped > MIN_HEIGHT);
+  }, []);
+
+  useEffect(() => {
+    autoResize();
+  }, [value, autoResize]);
 
   const handleSubmit = () => {
     const trimmed = value.trim();
     if (!trimmed || isLoading || disabled) return;
     onSubmit(trimmed, selectedFormat || undefined);
     setValue("");
+    // reset height after clearing
+    requestAnimationFrame(() => {
+      if (textareaRef.current) {
+        textareaRef.current.style.height = `${MIN_HEIGHT}px`;
+        textareaRef.current.style.overflowY = "hidden";
+      }
+      setIsExpanded(false);
+    });
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -27,37 +55,34 @@ export function PromptBar({ onSubmit, isLoading = false, disabled = false }: Pro
     }
   };
 
+  const lineCount = value.split("\n").length;
+
   return (
     <div className="px-6 py-4 bg-slate-900/50 border-b border-slate-800 shrink-0">
-      <div className="max-w-[1400px] mx-auto flex gap-4 items-start">
-        {/* Textarea with icon */}
+      <div className="max-w-[1400px] mx-auto flex gap-4 items-end">
+        {/* Auto-expanding textarea */}
         <div className="flex-1 relative group">
-          <div className="absolute left-4 top-3.5 text-slate-400 group-focus-within:text-primary transition-colors">
+          <div className={`absolute left-4 transition-all duration-200 text-slate-400 group-focus-within:text-primary ${isExpanded ? "top-3" : "top-3"}`}>
             <span className="material-symbols-outlined">psychology</span>
           </div>
           <textarea
+            ref={textareaRef}
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={disabled || isLoading}
             rows={1}
-            className="w-full pl-12 pr-4 py-3 bg-[#1e202f] border border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm resize-none h-12 custom-scrollbar disabled:opacity-50 disabled:cursor-not-allowed outline-none"
+            className="prompt-textarea w-full pl-12 pr-4 py-3 bg-[#1e202f] border border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm resize-none custom-scrollbar disabled:opacity-50 disabled:cursor-not-allowed outline-none"
+            style={{ height: MIN_HEIGHT, overflowY: "hidden" }}
             placeholder="Define the prompt for the council debate... e.g., Analyze the Q4 market expansion into Southeast Asia."
           />
-          {/* Icon buttons */}
-          <div className="absolute right-3 bottom-2.5 flex items-center gap-1">
-            <button
-              className="p-1.5 text-slate-400 hover:text-primary rounded transition-colors cursor-pointer"
-              title="Voice input"
-            >
-              <span className="material-symbols-outlined text-[18px]">mic</span>
-            </button>
-            <button
-              className="p-1.5 text-slate-400 hover:text-primary rounded transition-colors cursor-pointer"
-              title="Attach file"
-            >
-              <span className="material-symbols-outlined text-[18px]">attach_file</span>
-            </button>
+          {/* Subtle line counter – only visible when multi-line */}
+          <div
+            className={`absolute right-3 bottom-2 text-[10px] font-mono tracking-wider transition-all duration-300 ${
+              lineCount > 1 ? "opacity-60 translate-y-0" : "opacity-0 translate-y-1"
+            } text-slate-500`}
+          >
+            {lineCount} lines
           </div>
         </div>
 

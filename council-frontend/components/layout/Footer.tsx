@@ -1,6 +1,6 @@
 export function Footer() {
   return (
-    <footer className="border-t border-border-dark bg-background-dark py-12 px-6 lg:px-20 mt-auto">
+    <footer className="border-t border-border-dark bg-background-dark py-12 px-6 lg:px-20 mt-auto pointer-events-auto">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
         {/* Logo */}
         <div className="flex items-center gap-3 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all">

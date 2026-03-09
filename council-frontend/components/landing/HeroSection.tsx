@@ -44,11 +44,11 @@ export function HeroSection({ onNavigateToSession }: HeroSectionProps = {}) {
       <div className="flex flex-col sm:flex-row gap-4">
         <button
           onClick={onNavigateToSession}
-          className="bg-primary hover:bg-primary/90 text-white text-lg font-bold h-14 px-10 rounded-lg transition-all shadow-[0_0_40px_rgba(232,115,74,0.2)] cursor-pointer"
+          className="pointer-events-auto bg-primary hover:bg-primary/90 text-white text-lg font-bold h-14 px-10 rounded-lg transition-all shadow-[0_0_40px_rgba(232,115,74,0.2)] cursor-pointer"
         >
           Begin Your Session
         </button>
-        <button className="border border-border-dark hover:bg-card-dark text-white text-lg font-bold h-14 px-10 rounded-lg transition-all cursor-pointer">
+        <button className="pointer-events-auto border border-border-dark hover:bg-card-dark text-white text-lg font-bold h-14 px-10 rounded-lg transition-all cursor-pointer">
           View Demo
         </button>
       </div>

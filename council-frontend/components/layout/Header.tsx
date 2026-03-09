@@ -7,7 +7,7 @@ interface HeaderProps {
 export function Header({ onNavigateToSession }: HeaderProps = {}) {
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-border-dark bg-background-dark/80 backdrop-blur-md px-6 lg:px-20 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-50 w-full border-b border-border-dark bg-background-dark/80 backdrop-blur-md px-6 lg:px-20 py-4 flex items-center justify-between pointer-events-auto">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center size-8 bg-primary rounded">

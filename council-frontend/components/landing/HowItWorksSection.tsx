@@ -46,8 +46,8 @@ export function HowItWorksSection() {
             <div
               className={
                 step.filled
-                  ? "size-24 rounded-2xl bg-primary border border-white/20 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(232,115,74,0.4)]"
-                  : "size-24 rounded-2xl bg-card-dark border border-border-dark flex items-center justify-center mb-6 group-hover:border-primary/50 transition-colors"
+                  ? "pointer-events-auto size-24 rounded-2xl bg-primary border border-white/20 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(232,115,74,0.4)]"
+                  : "pointer-events-auto size-24 rounded-2xl bg-card-dark border border-border-dark flex items-center justify-center mb-6 group-hover:border-primary/50 transition-colors"
               }
             >
               <span

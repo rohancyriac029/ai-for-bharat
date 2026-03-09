@@ -58,7 +58,7 @@ export function AgentRosterSection() {
         </div>
         <a
           href="#"
-          className="text-primary text-sm font-bold flex items-center gap-2 hover:underline"
+          className="pointer-events-auto text-primary text-sm font-bold flex items-center gap-2 hover:underline"
         >
           View Agent Catalog
           <span className="material-symbols-outlined text-sm">arrow_forward</span>
@@ -74,7 +74,7 @@ export function AgentRosterSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1, duration: 0.4 }}
-            className={`bg-card-dark border border-border-dark ${agent.topBorder} border-t-4 rounded-xl p-8 hover:bg-border-dark/30 transition-all cursor-pointer`}
+            className={`pointer-events-auto bg-card-dark border border-border-dark ${agent.topBorder} border-t-4 rounded-xl p-8 hover:bg-border-dark/30 transition-all cursor-pointer`}
           >
             {/* Version + more options */}
             <div className="flex justify-between items-start mb-6">
